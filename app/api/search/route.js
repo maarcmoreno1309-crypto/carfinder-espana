@@ -2,39 +2,26 @@ import Anthropic from "@anthropic-ai/sdk";
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
-async function callApifyWallapop(query, precioMin, precioMax) {
-  const url = `https://api.apify.com/v2/acts/jupri~wallapop-scraper/run-sync-get-dataset-items?token=${process.env.APIFY_API_KEY}&timeout=55`;
+async function callApifyWallapop(query, precioMin, precioMax, kmMax, anyoMin) {
+  const url = `https://api.apify.com/v2/acts/rastriq~wallapop-cars-scraper/run-sync-get-dataset-items?token=${process.env.APIFY_API_KEY}&timeout=55`;
   try {
-    const res = await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        search: query,
-        category: "cars",
-        minPrice: precioMin || undefined,
-        maxPrice: precioMax || undefined,
-        maxItems: 15,
-      }),
-    });
-    if (!res.ok) return [];
-    const data = await res.json();
-    return Array.isArray(data) ? data : [];
-  } catch {
-    return [];
-  }
-}
+    const input = {
+      keywords: query,
+      proxyConfiguration: {
+        useApifyProxy: true,
+        apifyProxyGroups: ["RESIDENTIAL"],
+        apifyProxyCountry: "ES"
+      }
+    };
+    if (precioMin) input.minPrice = precioMin;
+    if (precioMax) input.maxPrice = precioMax;
+    if (kmMax) input.maxMileage = kmMax;
+    if (anyoMin) input.minYear = anyoMin;
 
-async function callApifyCochesNet(query, precioMax) {
-  const url = `https://api.apify.com/v2/acts/apify~web-scraper/run-sync-get-dataset-items?token=${process.env.APIFY_API_KEY}&timeout=55`;
-  try {
-    const searchUrl = `https://www.coches.net/segunda-mano/?q=${encodeURIComponent(query)}${precioMax ? `&price_to=${precioMax}` : ""}`;
     const res = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        startUrls: [{ url: searchUrl }],
-        maxPagesPerCrawl: 1,
-      }),
+      body: JSON.stringify(input),
     });
     if (!res.ok) return [];
     const data = await res.json();
@@ -59,11 +46,13 @@ FILTROS DEL COMPRADOR:
 - Cambio: ${filtros.cambio}
 
 ANUNCIO:
-Título: ${anuncio.titulo || anuncio.title || ""}
-Descripción: ${(anuncio.descripcion || anuncio.description || "").substring(0, 500)}
-Precio: ${anuncio.precio || anuncio.price || ""}
-Km: ${anuncio.km || anuncio.kilometers || ""}
-Año: ${anuncio.anyo || anuncio.year || ""}
+Título: ${anuncio.titulo || ""}
+Descripción: ${(anuncio.descripcion || "").substring(0, 500)}
+Precio: ${anuncio.precio || ""}
+Km: ${anuncio.km || ""}
+Año: ${anuncio.anyo || ""}
+Combustible: ${anuncio.combustible || ""}
+CV: ${anuncio.cv || ""}
 
 Responde SOLO con JSON sin markdown:
 {
@@ -101,18 +90,20 @@ export async function POST(request) {
     const wallapopRaw = await callApifyWallapop(
       query,
       filtros.precioMin ? Number(filtros.precioMin) : undefined,
-      filtros.precioMax ? Number(filtros.precioMax) : undefined
+      filtros.precioMax ? Number(filtros.precioMax) : undefined,
+      filtros.kmMax ? Number(filtros.kmMax) : undefined,
+      filtros.anyoMin ? Number(filtros.anyoMin) : undefined
     );
 
     const anuncios = wallapopRaw.map(a => ({
       titulo: a.title || a.name || a.titulo || "",
       descripcion: a.description || a.descripcion || "",
       precio: a.price || a.precio,
-      km: a.km || a.kilometers || a.mileage,
+      km: a.mileage || a.km || a.kilometers,
       anyo: a.year || a.anyo,
-      cv: a.power || a.cv,
+      cv: a.enginePower || a.power || a.cv,
       combustible: a.fuelType || a.fuel || a.combustible,
-      cambio: a.gearbox || a.transmission || a.cambio,
+      cambio: a.transmission || a.gearbox || a.cambio,
       imagen: a.images?.[0] || a.image || a.thumbnail || a.imagen,
       url: a.url || a.link || a.itemUrl,
       portal: "Wallapop",
