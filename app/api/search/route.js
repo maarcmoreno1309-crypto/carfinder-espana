@@ -2,18 +2,39 @@ import Anthropic from "@anthropic-ai/sdk";
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
-const ACTORS = {
-  wallapop: "rastriq~wallapop-cars-scraper",
-  cochesnet: "kaidev~coches-net-scraper",
-};
-
-async function callApify(actorId, input) {
-  const url = `https://api.apify.com/v2/acts/${actorId}/run-sync-get-dataset-items?token=${process.env.APIFY_API_KEY}&timeout=60`;
+async function callApifyWallapop(query, precioMin, precioMax) {
+  const url = `https://api.apify.com/v2/acts/jupri~wallapop-scraper/run-sync-get-dataset-items?token=${process.env.APIFY_API_KEY}&timeout=55`;
   try {
     const res = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(input),
+      body: JSON.stringify({
+        search: query,
+        category: "cars",
+        minPrice: precioMin || undefined,
+        maxPrice: precioMax || undefined,
+        maxItems: 15,
+      }),
+    });
+    if (!res.ok) return [];
+    const data = await res.json();
+    return Array.isArray(data) ? data : [];
+  } catch {
+    return [];
+  }
+}
+
+async function callApifyCochesNet(query, precioMax) {
+  const url = `https://api.apify.com/v2/acts/apify~web-scraper/run-sync-get-dataset-items?token=${process.env.APIFY_API_KEY}&timeout=55`;
+  try {
+    const searchUrl = `https://www.coches.net/segunda-mano/?q=${encodeURIComponent(query)}${precioMax ? `&price_to=${precioMax}` : ""}`;
+    const res = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        startUrls: [{ url: searchUrl }],
+        maxPagesPerCrawl: 1,
+      }),
     });
     if (!res.ok) return [];
     const data = await res.json();
@@ -43,16 +64,13 @@ Descripción: ${(anuncio.descripcion || anuncio.description || "").substring(0, 
 Precio: ${anuncio.precio || anuncio.price || ""}
 Km: ${anuncio.km || anuncio.kilometers || ""}
 Año: ${anuncio.anyo || anuncio.year || ""}
-Combustible: ${anuncio.combustible || anuncio.fuelType || ""}
-Cambio: ${anuncio.cambio || anuncio.gearbox || ""}
-CV: ${anuncio.cv || anuncio.power || ""}
 
 Responde SOLO con JSON sin markdown:
 {
   "cumple": true/false,
   "score": número del 1 al 10,
   "resumen": "frase corta de por qué es buena o mala oferta",
-  "alertas": ["alerta1 si hay algo sospechoso"],
+  "alertas": [],
   "precio": número o null,
   "km": número o null,
   "anyo": número o null,
@@ -80,48 +98,25 @@ export async function POST(request) {
     const query = [filtros.marca !== "Cualquiera" ? filtros.marca : "", filtros.modelo].filter(Boolean).join(" ").trim();
     if (!query) return Response.json({ error: "Introduce marca o modelo" }, { status: 400 });
 
-    const [wallapopRaw, cochesRaw] = await Promise.all([
-      callApify(ACTORS.wallapop, {
-        search: query,
-        minPrice: filtros.precioMin ? Number(filtros.precioMin) : undefined,
-        maxPrice: filtros.precioMax ? Number(filtros.precioMax) : undefined,
-        maxResults: 20,
-      }),
-      callApify(ACTORS.cochesnet, {
-        search: query,
-        maxPrice: filtros.precioMax ? Number(filtros.precioMax) : undefined,
-        maxResults: 20,
-      }),
-    ]);
+    const wallapopRaw = await callApifyWallapop(
+      query,
+      filtros.precioMin ? Number(filtros.precioMin) : undefined,
+      filtros.precioMax ? Number(filtros.precioMax) : undefined
+    );
 
-    const anuncios = [
-      ...wallapopRaw.map(a => ({
-        titulo: a.title || a.titulo || "",
-        descripcion: a.description || a.descripcion || "",
-        precio: a.price || a.precio,
-        km: a.km || a.kilometers,
-        anyo: a.year || a.anyo,
-        cv: a.power || a.cv,
-        combustible: a.fuelType || a.combustible,
-        cambio: a.gearbox || a.cambio,
-        imagen: a.images?.[0] || a.image || a.imagen,
-        url: a.url || a.link,
-        portal: "Wallapop",
-      })),
-      ...cochesRaw.map(a => ({
-        titulo: a.title || a.titulo || "",
-        descripcion: a.description || a.descripcion || "",
-        precio: a.price || a.precio,
-        km: a.km || a.mileage,
-        anyo: a.year || a.anyo,
-        cv: a.power || a.cv,
-        combustible: a.fuelType || a.combustible,
-        cambio: a.gearbox || a.cambio,
-        imagen: a.images?.[0] || a.image,
-        url: a.url || a.link,
-        portal: "Coches.net",
-      })),
-    ].filter(a => a.titulo && a.url);
+    const anuncios = wallapopRaw.map(a => ({
+      titulo: a.title || a.name || a.titulo || "",
+      descripcion: a.description || a.descripcion || "",
+      precio: a.price || a.precio,
+      km: a.km || a.kilometers || a.mileage,
+      anyo: a.year || a.anyo,
+      cv: a.power || a.cv,
+      combustible: a.fuelType || a.fuel || a.combustible,
+      cambio: a.gearbox || a.transmission || a.cambio,
+      imagen: a.images?.[0] || a.image || a.thumbnail || a.imagen,
+      url: a.url || a.link || a.itemUrl,
+      portal: "Wallapop",
+    })).filter(a => a.titulo && a.url);
 
     if (anuncios.length === 0) return Response.json({ results: [] });
 
