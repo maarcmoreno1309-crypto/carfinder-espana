@@ -1,6 +1,8 @@
 import Anthropic from "@anthropic-ai/sdk";
+import { createClient } from "@supabase/supabase-js";
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY);
 
 async function callApify(actorId, input) {
   const url = `https://api.apify.com/v2/acts/${actorId}/run-sync-get-dataset-items?token=${process.env.APIFY_API_KEY}&timeout=55`;
@@ -18,118 +20,74 @@ async function callApify(actorId, input) {
   }
 }
 
-async function getWallapop(query, precioMin, precioMax, kmMax, anyoMin) {
+async function fetchAndSaveWallapop(query) {
   const data = await callApify("rastriq~wallapop-cars-scraper", {
     keywords: query,
-    minPrice: precioMin,
-    maxPrice: precioMax,
-    maxMileage: kmMax,
-    minYear: anyoMin,
+    maxItems: 50,
     proxyConfiguration: {
       useApifyProxy: true,
       apifyProxyGroups: ["RESIDENTIAL"],
       apifyProxyCountry: "ES"
     }
   });
-  return data.map(a => ({
+
+  const anuncios = data.map(a => ({
     titulo: a.title || a.name || "",
     descripcion: a.description || "",
-    precio: a.price,
-    km: a.mileage || a.km,
-    anyo: a.year,
-    cv: a.enginePower || a.power,
-    combustible: a.fuelType || a.fuel,
-    cambio: a.transmission || a.gearbox,
-    imagen: a.images?.[0] || a.image || a.thumbnail,
-    url: a.url || a.itemUrl,
+    precio: a.price || null,
+    km: a.mileage || a.km || null,
+    anyo: a.year || null,
+    cv: a.enginePower || a.power || null,
+    combustible: a.fuelType || a.fuel || null,
+    cambio: a.transmission || a.gearbox || null,
+    imagen: a.images?.[0] || a.image || a.thumbnail || null,
+    url: a.url || a.itemUrl || null,
     portal: "Wallapop",
+    marca: query.split(" ")[0] || null,
+    modelo: query,
   })).filter(a => a.titulo && a.url);
+
+  if (anuncios.length > 0) {
+    await supabase.from("anuncios").upsert(anuncios, { onConflict: "url", ignoreDuplicates: false });
+  }
+
+  return anuncios;
 }
 
-async function getCochesNet(query, precioMax, kmMax, anyoMin) {
-  const searchUrl = `https://www.coches.net/segunda-mano/?q=${encodeURIComponent(query)}${precioMax ? `&preciomax=${precioMax}` : ""}${kmMax ? `&kmsmax=${kmMax}` : ""}${anyoMin ? `&anodesde=${anyoMin}` : ""}`;
-  const data = await callApify("apify~web-scraper", {
-    startUrls: [{ url: searchUrl }],
-    pageFunction: `async function pageFunction(context) {
-      const { $ } = context;
-      const results = [];
-      $(".mt-CardAd").each((i, el) => {
-        const title = $(el).find(".mt-CardAd-title").text().trim();
-        const price = $(el).find(".mt-CardAd-price").text().replace(/[^0-9]/g,"");
-        const km = $(el).find(".mt-CardAd-atribute--km").text().replace(/[^0-9]/g,"");
-        const year = $(el).find(".mt-CardAd-atribute--year").text().trim();
-        const url = $(el).find("a").attr("href");
-        const img = $(el).find("img").attr("src");
-        if(title && url) results.push({ title, price: parseInt(price)||null, km: parseInt(km)||null, year: parseInt(year)||null, url: url.startsWith("http") ? url : "https://www.coches.net"+url, image: img });
-      });
-      return results;
-    }`,
-    maxPagesPerCrawl: 1,
-  });
-  return data.map(a => ({
-    titulo: a.title || "",
-    descripcion: "",
-    precio: a.price,
-    km: a.km,
-    anyo: a.year,
-    cv: null,
-    combustible: null,
-    cambio: null,
-    imagen: a.image,
-    url: a.url,
-    portal: "Coches.net",
-  })).filter(a => a.titulo && a.url);
-}
+async function searchFromDatabase(filtros) {
+  let query = supabase.from("anuncios").select("*");
 
-async function getMilanuncios(query, precioMax, kmMax, anyoMin) {
-  const searchUrl = `https://www.milanuncios.com/coches-de-segunda-mano/?titulo=${encodeURIComponent(query)}${precioMax ? `&preciomax=${precioMax}` : ""}`;
-  const data = await callApify("apify~web-scraper", {
-    startUrls: [{ url: searchUrl }],
-    pageFunction: `async function pageFunction(context) {
-      const { $ } = context;
-      const results = [];
-      $(".ma-AdCard").each((i, el) => {
-        const title = $(el).find(".ma-AdCard-title").text().trim();
-        const price = $(el).find(".ma-AdCard-price").text().replace(/[^0-9]/g,"");
-        const url = $(el).find("a").attr("href");
-        const img = $(el).find("img").attr("src");
-        if(title && url) results.push({ title, price: parseInt(price)||null, url: url.startsWith("http") ? url : "https://www.milanuncios.com"+url, image: img });
-      });
-      return results;
-    }`,
-    maxPagesPerCrawl: 1,
-  });
-  return data.map(a => ({
-    titulo: a.title || "",
-    descripcion: "",
-    precio: a.price,
-    km: null,
-    anyo: null,
-    cv: null,
-    combustible: null,
-    cambio: null,
-    imagen: a.image,
-    url: a.url,
-    portal: "Milanuncios",
-  })).filter(a => a.titulo && a.url);
+  if (filtros.modelo) {
+    query = query.ilike("titulo", `%${filtros.modelo}%`);
+  }
+  if (filtros.marca && filtros.marca !== "Cualquiera") {
+    query = query.ilike("titulo", `%${filtros.marca}%`);
+  }
+  if (filtros.precioMax) query = query.lte("precio", Number(filtros.precioMax));
+  if (filtros.precioMin) query = query.gte("precio", Number(filtros.precioMin));
+  if (filtros.kmMax) query = query.lte("km", Number(filtros.kmMax));
+  if (filtros.anyoMin) query = query.gte("anyo", Number(filtros.anyoMin));
+
+  query = query.order("precio", { ascending: true }).limit(50);
+
+  const { data, error } = await query;
+  if (error) return [];
+  return data || [];
 }
 
 async function analyzeWithClaude(anuncio, filtros) {
-  const prompt = `Eres un experto en coches de segunda mano en España. Analiza este anuncio y determina si cumple los filtros del comprador.
+  const prompt = `Eres un experto en coches de segunda mano en España. Analiza este anuncio.
 
 FILTROS:
 - Marca/Modelo: ${[filtros.marca !== "Cualquiera" ? filtros.marca : "", filtros.modelo].filter(Boolean).join(" ")}
 - Precio máximo: ${filtros.precioMax ? filtros.precioMax + "€" : "sin límite"}
-- Precio mínimo: ${filtros.precioMin ? filtros.precioMin + "€" : "sin límite"}
 - Km máximos: ${filtros.kmMax ? filtros.kmMax + " km" : "sin límite"}
 - Año mínimo: ${filtros.anyoMin || "sin límite"}
 - CV mínimos: ${filtros.cvMin || "sin límite"}
-- Combustible: ${filtros.combustible}
-- Cambio: ${filtros.cambio}
 
 ANUNCIO:
 Título: ${anuncio.titulo}
-Precio: ${anuncio.precio || "no indicado"}
+Precio: ${anuncio.precio || "no indicado"}€
 Km: ${anuncio.km || "no indicado"}
 Año: ${anuncio.anyo || "no indicado"}
 Portal: ${anuncio.portal}
@@ -138,19 +96,14 @@ Responde SOLO con JSON:
 {
   "cumple": true/false,
   "score": número 1-10,
-  "resumen": "frase corta",
-  "alertas": [],
-  "precio": número o null,
-  "km": número o null,
-  "anyo": número o null,
-  "cv": número o null,
-  "combustible": "string o null"
+  "resumen": "frase corta de máximo 15 palabras",
+  "alertas": []
 }`;
 
   try {
     const response = await anthropic.messages.create({
       model: "claude-haiku-4-5-20251001",
-      max_tokens: 300,
+      max_tokens: 200,
       messages: [{ role: "user", content: prompt }],
     });
     const text = response.content[0].text.trim().replace(/```json|```/g, "").trim();
@@ -166,24 +119,20 @@ export async function POST(request) {
     const query = [filtros.marca !== "Cualquiera" ? filtros.marca : "", filtros.modelo].filter(Boolean).join(" ").trim();
     if (!query) return Response.json({ error: "Introduce marca o modelo" }, { status: 400 });
 
-    const pMin = filtros.precioMin ? Number(filtros.precioMin) : undefined;
-    const pMax = filtros.precioMax ? Number(filtros.precioMax) : undefined;
-    const km = filtros.kmMax ? Number(filtros.kmMax) : undefined;
-    const anyo = filtros.anyoMin ? Number(filtros.anyoMin) : undefined;
+    // 1. Buscar en base de datos primero
+    let anuncios = await searchFromDatabase(filtros);
 
-    // Buscar en todos los portales en paralelo
-    const [wallapop, cochesnet, milanuncios] = await Promise.all([
-      getWallapop(query, pMin, pMax, km, anyo),
-      getCochesNet(query, pMax, km, anyo),
-      getMilanuncios(query, pMax, km, anyo),
-    ]);
+    // 2. Si hay pocos resultados, buscar en Wallapop y guardar
+    if (anuncios.length < 5) {
+      await fetchAndSaveWallapop(query);
+      anuncios = await searchFromDatabase(filtros);
+    }
 
-    const todos = [...wallapop, ...cochesnet, ...milanuncios].slice(0, 20);
-    if (todos.length === 0) return Response.json({ results: [] });
+    if (anuncios.length === 0) return Response.json({ results: [] });
 
-    // Analizar uno a uno para evitar error 429
+    // 3. Analizar con Claude uno a uno
     const results = [];
-    for (const anuncio of todos) {
+    for (const anuncio of anuncios.slice(0, 15)) {
       await new Promise(r => setTimeout(r, 200));
       const analisis = await analyzeWithClaude(anuncio, filtros);
       if (analisis && analisis.cumple) {
@@ -192,11 +141,6 @@ export async function POST(request) {
           score: analisis.score || 5,
           resumen: analisis.resumen || "",
           alertas: analisis.alertas || [],
-          precio: analisis.precio || anuncio.precio,
-          km: analisis.km || anuncio.km,
-          anyo: analisis.anyo || anuncio.anyo,
-          cv: analisis.cv || anuncio.cv,
-          combustible: analisis.combustible || anuncio.combustible,
         });
       }
     }
