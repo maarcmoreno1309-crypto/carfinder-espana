@@ -49,7 +49,10 @@ async function fetchAndSaveWallapop(query) {
   })).filter(a => a.titulo && a.url);
 
   if (anuncios.length > 0) {
-    await supabase.from("anuncios").upsert(anuncios, { onConflict: "url", ignoreDuplicates: false });
+    console.log("Guardando anuncios:", anuncios.length);
+    const { error } = await supabase.from("anuncios").upsert(anuncios, { onConflict: "url", ignoreDuplicates: false });
+    if (error) console.error("Error Supabase:", JSON.stringify(error));
+    else console.log("Guardado OK");
   }
 
   return anuncios;
