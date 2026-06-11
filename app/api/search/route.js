@@ -124,7 +124,7 @@ export async function POST(request) {
     let anuncios = await searchFromDatabase(filtros);
 
     // 2. Si hay pocos resultados, buscar en Wallapop y guardar
-    if (anuncios.length < 5) {
+    if (anuncios.length < 1) {
       await fetchAndSaveWallapop(query);
       anuncios = await searchFromDatabase(filtros);
     }
