@@ -59,7 +59,10 @@ export async function GET(request) {
 
   for (const marca of MARCAS_POPULARES) {
     try {
+      console.log("Intentando llamar a Apify para:", marca);
+      console.log("APIFY_API_KEY existe:", !!process.env.APIFY_API_KEY);
       const data = await callApifyWallapop(marca);
+      console.log("Resultado de Apify:", data.length, "items");
       const anuncios = normalizar(data, marca);
 
       if (anuncios.length > 0) {
