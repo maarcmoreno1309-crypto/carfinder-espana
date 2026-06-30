@@ -30,7 +30,7 @@ async function callApifyWallapop(query) {
 }
 
 function normalizar(data, query) {
-  return data.map(a => ({
+  const mapeados = data.map(a => ({
     titulo: a.title || a.name || "",
     descripcion: a.description || "",
     precio: a.price || null,
@@ -46,6 +46,13 @@ function normalizar(data, query) {
     modelo: query,
     updated_at: new Date().toISOString(),
   })).filter(a => a.titulo && a.url);
+
+  const vistos = new Set();
+  return mapeados.filter(a => {
+    if (vistos.has(a.url)) return false;
+    vistos.add(a.url);
+    return true;
+  });
 }
 
 export async function GET(request) {
