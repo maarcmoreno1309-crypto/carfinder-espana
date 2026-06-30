@@ -3,13 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 const supabaseUrl = (process.env.SUPABASE_URL || "").replace(/\/rest\/v1\/?$/, "");
 const supabase = createClient(supabaseUrl, process.env.SUPABASE_ANON_KEY);
 
-const MARCAS_POPULARES = [
-  "Volkswagen Golf", "SEAT Leon", "Renault Megane", "Ford Focus",
-  "BMW Serie 1", "BMW Serie 3", "Audi A3", "Audi A4",
-  "Mercedes Clase A", "Mercedes Clase C", "Opel Astra", "Toyota Corolla",
-  "Honda Civic", "Peugeot 308", "Citroen C4", "Hyundai i30",
-  "Kia Ceed", "Nissan Qashqai", "Mazda 3", "Skoda Octavia"
-];
+const MARCAS_POPULARES = ["Volkswagen Golf"];
 
 async function callApifyWallapop(query) {
   const url = `https://api.apify.com/v2/acts/rastriq~wallapop-cars-scraper/run-sync-get-dataset-items?token=${process.env.APIFY_API_KEY}&timeout=55`;
