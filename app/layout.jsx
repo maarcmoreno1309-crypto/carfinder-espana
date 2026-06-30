@@ -6,7 +6,17 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="es">
-      <body>{children}</body>
+      <body style={{ margin: 0 }}>
+        <style>{`
+          @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+          }
+          * { box-sizing: border-box; }
+          body { margin: 0; }
+        `}</style>
+        {children}
+      </body>
     </html>
   );
 }
