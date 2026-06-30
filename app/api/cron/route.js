@@ -19,7 +19,7 @@ async function callApifyWallapop(query) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         keywords: query,
-        maxItems: 100,
+        maxItems: 25,
         proxyConfiguration: {
           useApifyProxy: true,
           apifyProxyGroups: ["RESIDENTIAL"],
