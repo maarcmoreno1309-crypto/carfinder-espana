@@ -90,10 +90,14 @@ export default function CarFinder() {
             <span style={S.brandName}>CarFinder</span>
             <span style={S.brandBadge}>BETA</span>
           </div>
-          <span style={S.contador}>
-            <span style={S.contadorDot} />
-            {contador.toLocaleString("es-ES")} anuncios analizados esta semana
-          </span>
+          <div style={{display:"flex", alignItems:"center", gap:16}}>
+            <span style={S.contador}>
+              <span style={S.contadorDot} />
+              {contador.toLocaleString("es-ES")} anuncios analizados esta semana
+            </span>
+            <a href="/precios" style={{fontSize:13, color:"#22C55E", fontWeight:600, textDecoration:"none", border:"1px solid #22C55E44", padding:"7px 14px", borderRadius:8}}>Premium</a>
+            <a href="/login" style={{fontSize:13, color:"#F4F4F5", fontWeight:500, textDecoration:"none", border:"1px solid #1C1C1E", padding:"7px 14px", borderRadius:8}}>Entrar</a>
+          </div>
         </div>
       </header>
 
