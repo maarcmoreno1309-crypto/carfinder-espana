@@ -39,6 +39,14 @@ export default function CarFinder() {
   const [faqOpen, setFaqOpen] = useState(null);
   const [contador, setContador] = useState(12847);
   const [sticky, setSticky] = useState(false);
+  const [user, setUser] = useState(null);
+
+useEffect(() => {
+  if (!supabase) return;
+  supabase.auth.getSession().then(({ data: { session } }) => {
+    setUser(session?.user || null);
+  });
+}, []);
 
   useEffect(() => {
     const interval = setInterval(() => {
