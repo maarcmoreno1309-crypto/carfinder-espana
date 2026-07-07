@@ -185,7 +185,7 @@ export default function Dashboard() {
             <div style={S.planCard}>
               <div style={S.planHeader}>
                 <span style={S.planName}>{esPremium ? "Premium" : "Gratuito"}</span>
-                <span style={{...S.planStatus, background: esPremium ? "#052E16", color:"#22C55E", border:"1px solid #22C55E44"}}>Activo</span>
+                <span style={{...S.planStatus, background: esPremium ? "#052E16" : "#1A1A1A", color:"#22C55E", border:"1px solid #22C55E44"}}>Activo</span>
               </div>
               <ul style={S.planFeatures}>
                 {esPremium ? [
