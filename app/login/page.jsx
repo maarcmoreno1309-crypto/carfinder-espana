@@ -2,11 +2,10 @@
 import { useState } from "react";
 import { createClient } from "@supabase/supabase-js";
 
-const SUPA_URL = "https://lospwfebkykzfxwhuqzl.supabase.co";
-const SUPA_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxvc3B3ZmVia3lremZ4d2h1cXpsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA5OTIyODksImV4cCI6MjA5NjU2ODI4OX0.WjcVbGKhhlhei1oRkcf3uI-EKpUKl6bdiRqWjvaOam4";
-const supabase = typeof window !== "undefined" ? createClient(SUPA_URL, SUPA_KEY) : null;
-
-export default function Login() {
+const supabase = typeof window !== "undefined" ? createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL || "",
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""
+) : null;
   const [modo, setModo] = useState("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
