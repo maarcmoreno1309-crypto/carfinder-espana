@@ -67,7 +67,7 @@ export default function Precios() {
             <li style={S.feat}>✅ Verificación IA de cada anuncio</li>
             <li style={{...S.feat, color:"#22C55E", fontWeight:500}}>✅ Alertas por email (hasta 3)</li>
           </ul>
-          <a href="/login" style={S.btn}>Empezar por {anual ? "2,39€" : "2,99€"}/mes →</a>
+         <button onClick={handlePago} style={{...S.btn, border:"none", cursor:"pointer"}}>Empezar por {anual ? "2,39€" : "2,99€"}/mes →</button>
           <p style={S.cancel}>Cancela cuando quieras · Sin permanencia</p>
         </div>
       </section>
