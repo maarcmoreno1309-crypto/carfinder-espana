@@ -1,6 +1,16 @@
 "use client";
 import { useState } from "react";
 
+const handlePago = async () => {
+  const res = await fetch("/api/checkout", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ userId: "guest", email: "" }),
+  });
+  const data = await res.json();
+  if (data.url) window.location.href = data.url;
+};
+
 export default function Precios() {
   const [anual, setAnual] = useState(false);
 
