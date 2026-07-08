@@ -103,10 +103,10 @@ useEffect(() => {
             <span style={S.brandBadge}>BETA</span>
           </div>
           <div style={{display:"flex", alignItems:"center", gap:16}}>
-            <span style={S.contador}>
-              <span style={S.contadorDot} />
-              {contador.toLocaleString("es-ES")} anuncios analizados esta semana
-            </span>
+            <span style={{...S.contador, display:"none"}}>
+  <span style={S.contadorDot} />
+  {contador.toLocaleString("es-ES")} anuncios analizados esta semana
+</span>
             <a href="/precios" style={{fontSize:13, color:"#22C55E", fontWeight:600, textDecoration:"none", border:"1px solid #22C55E44", padding:"7px 14px", borderRadius:8}}>Premium</a>
             {user ? (
   <a href="/dashboard" style={{fontSize:13, color:"#F4F4F5", fontWeight:500, textDecoration:"none", border:"1px solid #1C1C1E", padding:"7px 14px", borderRadius:8}}>
