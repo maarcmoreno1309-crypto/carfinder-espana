@@ -1,12 +1,23 @@
 "use client";
 import { useState } from "react";
+import { createClient } from "@supabase/supabase-js";
+
+const SUPABASE_URL = "https://lospwfebkykzfxwhuqzl.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxvc3B3ZmVia3lremZ4d2h1cXpsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA5OTIyODksImV4cCI6MjA5NjU2ODI4OX0.WjcVbGKhhlhei1oRkcf3uI-EKpUKl6bdiRqWjvaOam4";
+const supabase = typeof window !== "undefined" ? createClient(SUPABASE_URL, SUPABASE_KEY) : null;
 
 const handlePago = async () => {
+  if (!supabase) return;
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session) { window.location.href = "/login"; return; }
   const res = await fetch("/api/checkout", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ userId: "guest", email: "" }),
+    body: JSON.stringify({ userId: session.user.id, email: session.user.email }),
   });
+  const data = await res.json();
+  if (data.url) window.location.href = data.url;
+};
   const data = await res.json();
   if (data.url) window.location.href = data.url;
 };
