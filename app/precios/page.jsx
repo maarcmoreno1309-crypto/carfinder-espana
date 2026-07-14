@@ -8,36 +8,25 @@ const supabase = typeof window !== "undefined" ? createClient(SUPABASE_URL, SUPA
 
 export default function Precios() {
   const [anual, setAnual] = useState(false);
-const [pagando, setPagando] = useState(false);
+  const [pagando, setPagando] = useState(false);
 
   const handlePago = async () => {
-  if (!supabase || pagando) return;
-  setPagando(true);
-  const { data: { session } } = await supabase.auth.getSession();
-  if (!session) {
-    window.location.href = "/login";
-    return;
-  }
-  try {
-    const res = await fetch("/api/checkout", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId: session.user.id, email: session.user.email }),
-    });
-    const data = await res.json();
-    if (data.url) window.location.href = data.url;
-    else setPagando(false);
-  } catch(e) {
-    setPagando(false);
-  }
-};
-    const res = await fetch("/api/checkout", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId: session.user.id, email: session.user.email }),
-    });
-    const data = await res.json();
-    if (data.url) window.location.href = data.url;
+    if (!supabase || pagando) return;
+    setPagando(true);
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) { window.location.href = "/login"; return; }
+    try {
+      const res = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: session.user.id, email: session.user.email }),
+      });
+      const data = await res.json();
+      if (data.url) window.location.href = data.url;
+      else setPagando(false);
+    } catch(e) {
+      setPagando(false);
+    }
   };
 
   return (
@@ -93,7 +82,7 @@ const [pagando, setPagando] = useState(false);
             <li style={S.feat}>✅ Verificación IA de cada anuncio</li>
             <li style={{...S.feat, color:"#22C55E", fontWeight:500}}>✅ Alertas por email (hasta 3)</li>
           </ul>
-         <button onClick={handlePago} disabled={pagando} style={{...S.btn, border:"none", cursor: pagando ? "not-allowed" : "pointer", opacity: pagando ? 0.7 : 1}}>
+          <button onClick={handlePago} disabled={pagando} style={{...S.btn, border:"none", cursor: pagando ? "not-allowed" : "pointer", opacity: pagando ? 0.7 : 1}}>
             {pagando ? "Procesando…" : `Empezar por ${anual ? "2,39€" : "2,99€"}/mes →`}
           </button>
           <p style={S.cancel}>Cancela cuando quieras · Sin permanencia</p>
