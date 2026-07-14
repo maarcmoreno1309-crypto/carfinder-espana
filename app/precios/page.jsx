@@ -6,28 +6,24 @@ const SUPABASE_URL = "https://lospwfebkykzfxwhuqzl.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxvc3B3ZmVia3lremZ4d2h1cXpsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA5OTIyODksImV4cCI6MjA5NjU2ODI4OX0.WjcVbGKhhlhei1oRkcf3uI-EKpUKl6bdiRqWjvaOam4";
 const supabase = typeof window !== "undefined" ? createClient(SUPABASE_URL, SUPABASE_KEY) : null;
 
-  const data = await res.json();
-  if (data.url) window.location.href = data.url;
-};
-  const data = await res.json();
-  if (data.url) window.location.href = data.url;
-};
-
 export default function Precios() {
   const [anual, setAnual] = useState(false);
 
   const handlePago = async () => {
-  if (!supabase) return;
-  const { data: { session } } = await supabase.auth.getSession();
-  if (!session) { window.location.href = "/login"; return; }
-  const res = await fetch("/api/checkout", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ userId: session.user.id, email: session.user.email }),
-  });
-  const data = await res.json();
-  if (data.url) window.location.href = data.url;
-};
+    if (!supabase) return;
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      window.location.href = "/login";
+      return;
+    }
+    const res = await fetch("/api/checkout", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId: session.user.id, email: session.user.email }),
+    });
+    const data = await res.json();
+    if (data.url) window.location.href = data.url;
+  };
 
   return (
     <main style={S.main}>
@@ -82,7 +78,9 @@ export default function Precios() {
             <li style={S.feat}>✅ Verificación IA de cada anuncio</li>
             <li style={{...S.feat, color:"#22C55E", fontWeight:500}}>✅ Alertas por email (hasta 3)</li>
           </ul>
-         <button onClick={handlePago} style={{...S.btn, border:"none", cursor:"pointer"}}>Empezar por {anual ? "2,39€" : "2,99€"}/mes →</button>
+          <button onClick={handlePago} style={{...S.btn, border:"none", cursor:"pointer"}}>
+            Empezar por {anual ? "2,39€" : "2,99€"}/mes →
+          </button>
           <p style={S.cancel}>Cancela cuando quieras · Sin permanencia</p>
         </div>
       </section>
@@ -135,7 +133,7 @@ const S = {
   hr:{border:"none",borderTop:"1px solid #1A1A1A",marginBottom:"1.25rem"},
   features:{listStyle:"none",padding:0,margin:"0 0 1.5rem",display:"flex",flexDirection:"column",gap:10},
   feat:{fontSize:13,color:"#AAA"},
-  btn:{display:"block",textAlign:"center",background:A,color:"#000",textDecoration:"none",borderRadius:10,padding:"14px",fontSize:13,fontWeight:700,fontFamily:"'Inter',sans-serif"},
+  btn:{display:"block",textAlign:"center",background:A,color:"#000",textDecoration:"none",borderRadius:10,padding:"14px",fontSize:13,fontWeight:700,fontFamily:"'Inter',sans-serif",width:"100%",boxSizing:"border-box"},
   btnFree:{background:"transparent",border:"1px solid #1A1A1A",color:"#F5F5F5"},
   cancel:{textAlign:"center",fontSize:11,color:"#444",marginTop:10},
   faq:{maxWidth:600,margin:"0 auto",padding:"0 1rem 4rem",display:"flex",flexDirection:"column",gap:12},
