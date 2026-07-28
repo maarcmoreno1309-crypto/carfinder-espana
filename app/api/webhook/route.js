@@ -10,7 +10,7 @@ export async function POST(request) {
 
       if (userId) {
         // Actualizar el plan del usuario a premium en Supabase
-        const supabaseUrl = process.env.SUPABASE_URL;
+        const supabaseUrl = (process.env.SUPABASE_URL || "").replace(/\/rest\/v1\/?$/, "");
         const supabaseKey = process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_ANON_KEY;
 
         await fetch(`${supabaseUrl}/rest/v1/perfiles?id=eq.${userId}`, {
