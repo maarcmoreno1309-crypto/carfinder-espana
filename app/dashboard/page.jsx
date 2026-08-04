@@ -161,6 +161,10 @@ setPlan(perfil?.plan || "free");
                 <input value={newAlerta.modelo} onChange={e => setNewAlerta({...newAlerta, modelo:e.target.value})} placeholder="Golf GTI, León FR…" style={S.input} />
                 <div style={S.row3}>
                   <div>
+                    <label style={S.label}>Precio mín.</label>
+                    <input type="number" value={newAlerta.precio_min} onChange={e => setNewAlerta({...newAlerta, precio_min:e.target.value})} placeholder="2000" style={S.input} />
+                  </div>
+                  <div>
                     <label style={S.label}>Precio máx.</label>
                     <input type="number" value={newAlerta.precio_max} onChange={e => setNewAlerta({...newAlerta, precio_max:e.target.value})} placeholder="10000" style={S.input} />
                   </div>
