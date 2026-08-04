@@ -1,5 +1,9 @@
 import { createClient } from "@supabase/supabase-js";
 
+export const dynamic = "force-dynamic";
+export const maxDuration = 300;
+
+const supabaseUrl = ...
 const supabaseUrl = (process.env.SUPABASE_URL || "").replace(/\/rest\/v1\/?$/, "");
 const supabase = createClient(supabaseUrl, process.env.SUPABASE_ANON_KEY);
 
