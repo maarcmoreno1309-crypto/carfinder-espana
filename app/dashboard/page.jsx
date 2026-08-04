@@ -141,8 +141,9 @@ setPlan(perfil?.plan || "free");
                   <div key={a.id} style={S.alertaItem}>
                     <div>
                       <p style={S.alertaTitle}>{a.modelo}</p>
-                      <p style={S.alertaMeta}>
-                        {a.precio_max && `Máx. ${a.precio_max.toLocaleString("es-ES")}€`}
+                     <p style={S.alertaMeta}>
+                        {a.precio_min && `Desde ${a.precio_min.toLocaleString("es-ES")}€ `}
+                        {a.precio_max && `· Máx. ${a.precio_max.toLocaleString("es-ES")}€`}
                         {a.km_max && ` · Máx. ${a.km_max.toLocaleString("es-ES")} km`}
                         {a.anyo_min && ` · Desde ${a.anyo_min}`}
                       </p>
