@@ -86,6 +86,7 @@ export async function GET(request) {
     for (const palabra of palabras) {
       query += `&titulo=ilike.*${encodeURIComponent(palabra)}*`;
     }
+    if (alerta.precio_min) query += `&precio=gte.${alerta.precio_min}`;
     if (alerta.precio_max) query += `&precio=lte.${alerta.precio_max}`;
     if (alerta.km_max) query += `&km=lte.${alerta.km_max}`;
     if (alerta.anyo_min) query += `&anyo=gte.${alerta.anyo_min}`;
