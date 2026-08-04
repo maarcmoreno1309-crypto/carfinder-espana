@@ -68,7 +68,7 @@ setPlan(perfil?.plan || "free");
     </main>
   );
 
-  const esPremium = user?.user_metadata?.plan === "premium";
+  const esPremium = plan === "premium";
   const emailCorto = user?.email?.split("@")[0];
 
   return (
