@@ -12,7 +12,7 @@ export default function Dashboard() {
   const [alertas, setAlertas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showNewAlerta, setShowNewAlerta] = useState(false);
-  const [newAlerta, setNewAlerta] = useState({ modelo:"", precio_max:"", km_max:"", anyo_min:"" });
+ const [newAlerta, setNewAlerta] = useState({ modelo:"", precio_min:"", precio_max:"", km_max:"", anyo_min:"" });
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -42,10 +42,12 @@ setPlan(perfil?.plan || "free");
     await supabase.from("alertas_usuario").insert({
       user_id: session.user.id,
       modelo: newAlerta.modelo,
+      precio_min: newAlerta.precio_min ? Number(newAlerta.precio_min) : null,
       precio_max: newAlerta.precio_max ? Number(newAlerta.precio_max) : null,
       km_max: newAlerta.km_max ? Number(newAlerta.km_max) : null,
       anyo_min: newAlerta.anyo_min ? Number(newAlerta.anyo_min) : null,
       activa: true,
+    });
     });
     const { data } = await supabase.from("alertas_usuario").select("*").eq("user_id", session.user.id).eq("activa", true);
     setAlertas(data || []);
