@@ -80,8 +80,12 @@ export async function GET(request) {
     const perfil = perfiles[0];
     if (!perfil || perfil.plan !== "premium") continue;
 
-    // 3. Buscar anuncios que encajen
-    let query = `anuncios?titulo=ilike.*${encodeURIComponent(alerta.modelo)}*&select=*`;
+    // 3. Buscar anuncios que encajen (matching flexible por palabras)
+    const palabras = alerta.modelo.trim().split(/\s+/).filter(p => p.length > 1);
+    let query = `anuncios?select=*`;
+    for (const palabra of palabras) {
+      query += `&titulo=ilike.*${encodeURIComponent(palabra)}*`;
+    }
     if (alerta.precio_max) query += `&precio=lte.${alerta.precio_max}`;
     if (alerta.km_max) query += `&km=lte.${alerta.km_max}`;
     if (alerta.anyo_min) query += `&anyo=gte.${alerta.anyo_min}`;
