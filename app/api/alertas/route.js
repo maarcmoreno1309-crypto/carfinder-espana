@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+export const maxDuration = 300;
 const RESEND_KEY = process.env.RESEND_API_KEY;
 const SUPABASE_URL = (process.env.SUPABASE_URL || "").replace(/\/rest\/v1\/?$/, "");
 const SUPABASE_KEY = process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_ANON_KEY;
