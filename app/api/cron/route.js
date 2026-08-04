@@ -99,10 +99,10 @@ async function guardar(anuncios) {
 }
 
 export async function GET(request) {
-  const authHeader = request.headers.get("authorization");
-  if (process.env.CRON_SECRET && authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-    return Response.json({ error: "Unauthorized" }, { status: 401 });
-  }
+//  const authHeader = request.headers.get("authorization");
+//  if (process.env.CRON_SECRET && authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+//  return Response.json({ error: "Unauthorized" }, { status: 401 });
+//  }
 
   let totalGuardados = 0;
   const errores = [];
