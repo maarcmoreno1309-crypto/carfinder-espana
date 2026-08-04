@@ -8,6 +8,7 @@ const supabase = typeof window !== "undefined" ? createClient(SUPABASE_URL, SUPA
 
 export default function Dashboard() {
   const [user, setUser] = useState(null);
+  const [plan, setPlan] = useState("free");
   const [alertas, setAlertas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showNewAlerta, setShowNewAlerta] = useState(false);
