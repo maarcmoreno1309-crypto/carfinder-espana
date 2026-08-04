@@ -22,6 +22,8 @@ export default function Dashboard() {
       setUser(session.user);
       const { data } = await supabase.from("alertas_usuario").select("*").eq("user_id", session.user.id).eq("activa", true);
       setAlertas(data || []);
+      const { data: perfil } = await supabase.from("perfiles").select("plan").eq("id", session.user.id).single();
+setPlan(perfil?.plan || "free");
       setLoading(false);
     };
     getUser();
