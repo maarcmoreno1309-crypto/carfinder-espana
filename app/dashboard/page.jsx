@@ -197,17 +197,17 @@ setPlan(perfil?.plan || "free");
                 <span style={{...S.planStatus, background: esPremium ? "#052E16" : "#1A1A1A", color:"#22C55E", border:"1px solid #22C55E44"}}>Activo</span>
               </div>
               <ul style={S.planFeatures}>
-                {esPremium ? [
+                {(esPremium ? [
                   "✅ Resultados ilimitados",
                   "✅ Alertas por email (hasta 3)",
                   "✅ Búsquedas guardadas",
                   "✅ Historial 30 días",
                 ] : [
                   "✅ Búsquedas ilimitadas",
-                  "✅ Hasta 5 resultados",
+                  "✅ Resultados ilimitados",
                   "❌ Alertas por email",
-                  "❌ Resultados ilimitados",
-                ].map((f, i) => <li key={i} style={S.planFeature}>{f}</li>)}
+                  "❌ Búsquedas guardadas",
+                ]).map((f, i) => <li key={i} style={S.planFeature}>{f}</li>)}
               </ul>
               {!esPremium && (
                 <a href="/precios" style={S.planUpgrade}>Ver plan Premium →</a>
