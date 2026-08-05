@@ -1,6 +1,23 @@
 export const metadata = {
-  title: "CarFinder España",
-  description: "Busca coches en todos los portales a la vez. Sin abrir mil pestañas.",
+  title: "CarFinder — Encuentra tu coche sin buscar en mil webs",
+  description: "Pon tus filtros una vez y rastreamos todos los portales de coches de segunda mano por ti. Solo ves las ofertas que de verdad te interesan. Gratis y sin registro.",
+  metadataBase: new URL("https://carfinder-espana-1p5z.vercel.app"),
+  openGraph: {
+    title: "CarFinder — Encuentra tu coche sin buscar en mil webs",
+    description: "Pon tus filtros una vez y rastreamos todos los portales por ti. Solo ves las ofertas que de verdad te interesan.",
+    url: "https://carfinder-espana-1p5z.vercel.app",
+    siteName: "CarFinder",
+    locale: "es_ES",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "CarFinder — Encuentra tu coche sin buscar en mil webs",
+    description: "Pon tus filtros una vez y rastreamos todos los portales por ti.",
+  },
+  icons: {
+    icon: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚗</text></svg>",
+  },
 };
 
 export default function RootLayout({ children }) {
@@ -17,57 +34,19 @@ export default function RootLayout({ children }) {
           }
           * { box-sizing: border-box; }
           body { margin: 0; padding: 0; overflow-x: hidden; }
+          input, select, button { font-size: 16px; }
 
-          /* MÓVIL — pantalla estrecha vertical */
           @media (max-width: 640px) {
-            /* Navbar */
             .nav-count { display: none !important; }
-
-            /* Hero */
             h1 { font-size: 32px !important; }
-
-            /* Buscador */
-            .row2, .row3, .row4 {
-              grid-template-columns: 1fr !important;
-            }
-
-            /* Resultados */
-            .results-grid {
-              grid-template-columns: 1fr !important;
-            }
-
-            /* Steps */
-            .steps-grid {
-              grid-template-columns: 1fr !important;
-            }
-
-            /* Plans */
-            .plans-grid {
-              grid-template-columns: 1fr !important;
-            }
-
-            /* Dashboard grid */
-            .dash-grid {
-              grid-template-columns: 1fr !important;
-            }
-
-            /* Example card */
-            .ex-card-body {
-              flex-direction: column !important;
-            }
-
-            /* FAQ grid */
-            .faq-grid {
-              grid-template-columns: 1fr !important;
-            }
-
-            /* Hero stats */
-            .hero-stats {
-              flex-wrap: wrap !important;
-              gap: 12px !important;
-            }
-
-            /* Padding general */
+            .row2, .row3, .row4 { grid-template-columns: 1fr !important; }
+            .results-grid { grid-template-columns: 1fr !important; }
+            .steps-grid { grid-template-columns: 1fr !important; }
+            .plans-grid { grid-template-columns: 1fr !important; }
+            .dash-grid { grid-template-columns: 1fr !important; }
+            .ex-card-body { flex-direction: column !important; }
+            .faq-grid { grid-template-columns: 1fr !important; }
+            .hero-stats { flex-wrap: wrap !important; gap: 12px !important; }
             section { padding-left: 1rem !important; padding-right: 1rem !important; }
           }
         `}</style>
