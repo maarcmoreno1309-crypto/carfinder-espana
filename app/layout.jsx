@@ -1,18 +1,18 @@
 export const metadata = {
-  title: "CarFinder — Encuentra tu coche sin buscar en mil webs",
+  title: "AutoScan — Encuentra tu coche sin buscar en mil webs",
   description: "Pon tus filtros una vez y rastreamos todos los portales de coches de segunda mano por ti. Solo ves las ofertas que de verdad te interesan. Gratis y sin registro.",
-  metadataBase: new URL("https://carfinder-espana-1p5z.vercel.app"),
+  metadataBase: new URL("https://autoscan.es"),
   openGraph: {
-    title: "CarFinder — Encuentra tu coche sin buscar en mil webs",
+    title: "AutoScan — Encuentra tu coche sin buscar en mil webs",
     description: "Pon tus filtros una vez y rastreamos todos los portales por ti. Solo ves las ofertas que de verdad te interesan.",
-    url: "https://carfinder-espana-1p5z.vercel.app",
-    siteName: "CarFinder",
+    url: "https://autoscan.es",
+    siteName: "AutoScan",
     locale: "es_ES",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "CarFinder — Encuentra tu coche sin buscar en mil webs",
+    title: "AutoScan — Encuentra tu coche sin buscar en mil webs",
     description: "Pon tus filtros una vez y rastreamos todos los portales por ti.",
   },
   icons: {
