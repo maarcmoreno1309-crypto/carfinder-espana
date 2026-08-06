@@ -43,7 +43,7 @@ export default function Login() {
     <main style={S.main}>
       <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
       <nav style={S.nav}>
-        <a href="/" style={S.logo}><span style={S.logoAccent}>Car</span>Finder</a>
+        <a href="/" style={S.logo}><span style={S.logoAccent}>Auto</span>Scan</a>
       </nav>
       <div style={S.wrap}>
         <div style={S.card}>
