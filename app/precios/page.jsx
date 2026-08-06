@@ -33,7 +33,7 @@ export default function Precios() {
     <main style={S.main}>
       <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
       <nav style={S.nav}>
-        <a href="/" style={S.logo}><span style={S.acc}>Car</span>Finder</a>
+        <a href="/" style={S.logo}><span style={S.acc}>Auto</span>Scan</a>
         <a href="/login" style={S.navBtn}>Entrar</a>
       </nav>
       <section style={S.hero}>
@@ -102,7 +102,7 @@ export default function Precios() {
         ))}
       </section>
       <footer style={S.footer}>
-        <a href="/" style={S.footerLogo}><span style={S.acc}>Car</span>Finder</a>
+        <a href="/" style={S.footerLogo}><span style={S.acc}>Auto</span>Scan</a>
         <span style={S.footerMeta}>Sin publicidad · Sin trampa</span>
       </footer>
     </main>
