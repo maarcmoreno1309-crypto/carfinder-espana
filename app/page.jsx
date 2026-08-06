@@ -99,7 +99,7 @@ useEffect(() => {
         <div style={S.navInner}>
           <div style={S.brand}>
             <div style={S.brandDot} />
-            <span style={S.brandName}>CarFinder</span>
+            <span style={S.brandName}>AutoScan</span>
             <span style={S.brandBadge}>BETA</span>
           </div>
           <div style={{display:"flex", alignItems:"center", gap:16}}>
@@ -291,7 +291,7 @@ useEffect(() => {
       )}
 
       <footer style={S.footer}>
-        <p style={S.footerText}>CarFinder España — comparador independiente de coches de segunda mano.</p>
+       <p style={S.footerText}>AutoScan — comparador independiente de coches de segunda mano.</p>
         <p style={S.footerSub}>Siempre enlazamos al anuncio original. No somos un portal de venta.</p>
       </footer>
     </main>
