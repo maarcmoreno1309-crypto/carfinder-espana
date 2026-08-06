@@ -76,7 +76,7 @@ export default function Dashboard() {
     <main style={S.main}>
       <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
       <nav style={S.nav}>
-        <a href="/" style={S.logo}><span style={S.acc}>Car</span>Finder</a>
+        <a href="/" style={S.logo}><span style={S.acc}>Auto</span>Scan</a>
         <div style={S.navRight}>
           <a href="/" style={S.navLink}>Buscador</a>
           <button onClick={cerrarSesion} style={S.navBtn}>Salir</button>
