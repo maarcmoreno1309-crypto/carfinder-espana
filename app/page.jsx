@@ -8,7 +8,36 @@ const supabase = typeof window !== "undefined" ? createClient(SUPABASE_URL, SUPA
 const MARCAS = ["Cualquiera","Volkswagen","SEAT","Renault","Ford","BMW","Mercedes","Audi","Opel","Toyota","Honda","Peugeot","Citroën","Hyundai","Kia","Nissan","Mazda","Skoda","Volvo","Fiat","Alfa Romeo","Suzuki","Dacia","Mini","Porsche"];
 const COMBUSTIBLES = ["Indiferente","Gasolina","Diésel","Híbrido","Eléctrico"];
 const CAMBIOS = ["Indiferente","Manual","Automático"];
-
+const PRODUCTOS = [
+  {
+    nombre: "Cámara de salpicadero con visión trasera",
+    marca: "Jansite 10\" · 1080P",
+    precio: "75,99€",
+    url: "https://www.amazon.es/dp/B07YTXBSQY?tag=autoscan-21",
+    emoji: "📹",
+  },
+  {
+    nombre: "Soporte de móvil para coche",
+    marca: "Miracase · Ventosa 360°",
+    precio: "14,99€",
+    url: "https://www.amazon.es/dp/B0DCZMTJ34?tag=autoscan-21",
+    emoji: "📱",
+  },
+  {
+    nombre: "Escáner de diagnóstico OBD2",
+    marca: "AWESAFE · Multimarca",
+    precio: "15,99€",
+    url: "https://www.amazon.es/dp/B0FKGZLSYC?tag=autoscan-21",
+    emoji: "🔧",
+  },
+  {
+    nombre: "Arrancador de batería portátil",
+    marca: "AstroAI B8 · 12V",
+    precio: "30,68€",
+    url: "https://www.amazon.es/dp/B0FB86S2ZC?tag=autoscan-21",
+    emoji: "🔋",
+  },
+];
 const FAQ = [
   { q: "¿Es gratis?", a: "Sí, completamente gratis. Sin registro, sin tarjeta, sin letra pequeña." },
   { q: "¿Cuánto tarda en buscar?", a: "Entre 20 y 40 segundos. Estamos rastreando varios portales a la vez, así que necesitamos ese tiempo para hacerlo bien." },
@@ -289,6 +318,57 @@ useEffect(() => {
           </section>
         </>
       )}
+      
+      {loading && (
+        <div style={S.loadingSection}>
+          <div style={S.loadingSpinner} />
+          <p style={S.loadingTitle}>Rastreando el mercado por ti</p>
+          <p style={S.loadingSub}>Estamos revisando cada anuncio antes de mostrártelo. Un momento.</p>
+        </div>
+      )}
+
+      {!loading && searched && results.length === 0 && (
+        <div style={S.emptySection}>
+          <p style={S.emptyTitle}>No encontramos nada que encaje</p>
+          <p style={S.emptySub}>Prueba a ampliar el presupuesto o los kilómetros e inténtalo de nuevo.</p>
+        </div>
+      )}
+
+      {!loading && results.length > 0 && (
+        <section style={S.resultsSection}>
+          <div style={S.resultsHeader}>
+            <span style={S.resultsCount}>{results.length} ofertas verificadas</span>
+            <span style={S.resultsSort}>Mejor puntuación primero</span>
+          </div>
+          <div style={S.resultsGrid}>
+            {results.map((car, i) => (
+              <article key={i} style={{...S.card, ...(i===0?S.cardTop:{})}}>
+                {i===0 && <div style={S.topBadge}>MEJOR COINCIDENCIA</div>}
+                <div style={S.cardImg}>
+                  {car.imagen ? <img src={car.imagen} alt={car.titulo} style={S.imgTag} /> : <div style={S.imgPlaceholder}>Sin foto</div>}
+                  <div style={{...S.scoreBadge, color:scoreColor(car.score), borderColor:scoreColor(car.score)}}>{car.score}</div>
+                </div>
+                <div style={S.cardBody}>
+                  <p style={S.cardTitle}>{car.titulo}</p>
+                  <p style={S.cardPrice}>{car.precio ? car.precio.toLocaleString("es-ES")+" €" : "Consultar"}</p>
+                  <div style={S.specsRow}>
+                    {car.km && <span style={S.specTag}>{car.km.toLocaleString("es-ES")} km</span>}
+                    {car.anyo && <span style={S.specTag}>{car.anyo}</span>}
+                    {car.cv && <span style={S.specTag}>{car.cv} CV</span>}
+                    {car.combustible && <span style={S.specTag}>{car.combustible}</span>}
+                    {car.portal && <span style={{...S.specTag,color:"#6366F1",borderColor:"#6366F1"}}>{car.portal}</span>}
+                  </div>
+                  <div style={{color:scoreColor(car.score),fontSize:12,fontWeight:600,marginBottom:6}}>
+                    {scoreLabel(car.score)}{car.resumen && <span style={{color:"#9CA3AF",fontWeight:400}}> — {car.resumen}</span>}
+                  </div>
+                  {car.alertas?.length > 0 && <div style={S.alertBox}>⚠ {car.alertas.join(" · ")}</div>}
+                  <a href={car.url} target="_blank" rel="noopener noreferrer" style={S.cardLink}>Ver anuncio en {car.portal} →</a>
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+      )}
 
       <footer style={S.footer}>
        <p style={S.footerText}>AutoScan — comparador independiente de coches de segunda mano.</p>
@@ -393,4 +473,15 @@ const S = {
   footer:{borderTop:"1px solid #1C1C1E",padding:"2rem 1.5rem",textAlign:"center"},
   footerText:{fontSize:13,color:"#6B7280",marginBottom:4},
   footerSub:{fontSize:12,color:"#4B5563"},
+  accWrap:{maxWidth:1100, margin:"0 auto", padding:"0 1.5rem 4rem"},
+  accHeader:{display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:"1rem", paddingBottom:"0.75rem", borderBottom:"1px solid #1A1A1A"},
+  accTitle:{fontSize:15, fontWeight:700, color:"#F5F5F5"},
+  accTag:{fontSize:10, color:"#555", border:"1px solid #2A2A2A", padding:"3px 8px", borderRadius:5, textTransform:"uppercase", letterSpacing:"0.05em"},
+  accGrid:{display:"grid", gridTemplateColumns:"repeat(auto-fill, minmax(240px, 1fr))", gap:12},
+  accCard:{display:"flex", alignItems:"center", gap:14, background:"#0D0D0D", border:"1px solid #1A1A1A", borderRadius:12, padding:"1rem", textDecoration:"none", transition:"border-color 0.2s"},
+  accEmoji:{fontSize:32, minWidth:44, height:44, display:"flex", alignItems:"center", justifyContent:"center", background:"#111", borderRadius:10},
+  accInfo:{flex:1},
+  accNombre:{fontSize:13, fontWeight:600, color:"#F5F5F5", marginBottom:3, lineHeight:1.3},
+  accMarca:{fontSize:11, color:"#666", marginBottom:6},
+  accPrecio:{fontSize:15, fontWeight:800, color:"#22C55E"},
 };
